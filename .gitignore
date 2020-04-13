@@ -3,3 +3,4 @@ data/audio_features_all.csv
 data/spotify_ton_of_songs.txt
 data/test.txt
 data/last*
+data_collection/test.py
