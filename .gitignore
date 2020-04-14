@@ -4,3 +4,4 @@ data/spotify_ton_of_songs.txt
 data/test.txt
 data/last*
 data_collection/test.py
+data/spotify_songs_found_from_artist.txt

@@ -64,11 +64,6 @@ bill_data = list(dict.fromkeys(bill_data))
 print("Line Count After:", len(bill_data))
 print("Percent Unique: %.2f%%"%(len(bill_data)*100/(len(bill_data)+dup_cnt)))
 
-none_lost = True
-for dup in duplicates:
-	if not(dup in bill_data):
-		none_lost = False
-		print(dup, "NOT IN UPDATED LIST")
 
 with open(outputfile, 'w') as bill_handle:
 	for bill in bill_data:
