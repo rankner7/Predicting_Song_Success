@@ -91,7 +91,7 @@ def dissect_track_info(track):
 	return track_info
 
 
-data_set = 'all'
+data_set = 'artists'
 
 last_id_file = ''
 audio_feature_file = ''
@@ -106,8 +106,13 @@ elif data_set == 'billboards':
 	last_id_file = '../data/last_id_billboards.txt'
 	audio_feature_file = '../data/audio_features_billboards.csv'
 
+elif data_set == 'artists':
+	track_data_file = '../data/spotify_songs_found_from_artist.txt'
+	last_id_file = '../data/last_id_artist_songs.txt'
+	audio_feature_file = '../data/audio_features_artist_songs.csv'
+
 else:
-	print("INVALID DATASET SELECTION --> must be 'all' or 'billboards'")
+	print("INVALID DATASET SELECTION --> must be 'all' or 'billboards' or 'artists'")
 	exit()
 
 

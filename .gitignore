@@ -1,7 +1,7 @@
 #Files to Ignore
-data/audio_features_all.csv
-data/spotify_ton_of_songs.txt
 data/test.txt
 data/last*
+data/spotify*
+data/audio_features*
+data/full_dataset.csv
 data_collection/test.py
-data/spotify_songs_found_from_artist.txt
