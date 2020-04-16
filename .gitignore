@@ -3,5 +3,5 @@ data/test.txt
 data/last*
 data/spotify*
 data/audio_features*
-data/full_dataset.csv
+data/full_dataset*
 data_collection/test.py
