@@ -32,6 +32,7 @@ pd.read_csv(fil_name, index_col=False, low_memory=False, header=None)
   * Tempo
   * Time Signature
   * Success
+* Further Description of the features can be found at: https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/
 * The Success column is a custom metric which indicates if a song is a hit or not
   * A hit was determined if it was found on the top billboard list from 1946-2019, which is a compiled list of the top 100 billboard hits from each year
   * There are approximately 5800 hits in the data set
