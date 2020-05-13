@@ -1,0 +1,240 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Predicting the Success of a Song\\
+}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Ronald Ankner}
+\IEEEauthorblockA{\textit{Department of Electrical Engineering} \\
+\textit{Stevens Institute of Technology}\\
+Hoboken, NJ \\
+rankner@stevens.edu}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Amit Singh}
+\IEEEauthorblockA{\textit{Department of Electrical Engineering} \\
+\textit{Stevens Institute of Technology}\\
+Hoboken, NJ \\
+asingh61@stevens.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+The goal of this study is to understand the feasibility of predicting the success of a song, but more so, once a stable prediction model is created, determine what factor play the biggest role in a song's success and why. To accomplish, 1.9 Million songs and their corresponding features were compiled into a data set constituting over 6\% of all songs available on Spotify and a large percentage of all songs produced in America from 1900-2019. Several machine learning techniques were applied to problem, trained on a wide range of features, with varying success.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Artificial Neural Network, Decision Tree, Feature Analysis, Audio Analysis, Unsupervised Learning
+\end{IEEEkeywords}
+
+\section{Introduction}
+Songs play at the very heart strings of every human. Songs that resonate have the power to capture some of the strongest human emotions. Strong lyrics have the power to uniquely define a shared human perspective. Despite this, whether a song becomes a hit or not seems largely random; there's no identifiable rhyme or reason. The goal of this study is to capture that rhyme and reason. Is there a pattern? Can machine learning and other pattern recognition techniques pull out the under-lying features that drive not only the success of a song, but why it resonates with the majority of human beings?
+
+To accomplish, a custom data set of over 1.9 Million songs was compiled. Features ranging from Spotify-derived features to lyrics to raw audio files are employed to find the driving patterns.
+
+\section{Tools Used}
+\begin{itemize}
+\item Sklearn
+\item Matplotlib
+\item Numpy
+\item Pandas
+\item Spotipy
+\item Statsmodels
+\item Urllib
+\end{itemize}
+
+\section{Related Work}
+
+
+\section{Data Collection}
+Data was assembled uniquely for our project as there were no existing data sets that met our needs. Several scripts were written to compile data from various sources to make a final data set of over 1.9 Million songs, a data set which constitutes about 6\% of all songs available on Spotify and a large majority of songs written in the United States from 1900-present.
+
+Data was compiled from:
+\begin{itemize}
+\item Wikipedia
+\item Other Websites
+\item Spotify
+\end{itemize}
+
+The full data set took over 24 hours of run time alone to compile, aside from the several days of script development.
+
+\subsection{Scraping the Internet}
+The first step was creating a custom script that scraped a Wikipedia list of song names by year, starting from 1946 and ending at 2019. The web page that was scraped can be found here: \url{https://en.wikipedia.org/wiki/Category:Songs_by_year}
+
+The next step was scraping a separate web page for names of American artists during that time period. The link for the artists is: \url{https://www.udiscovermusic.com/artists-a-z/}
+
+From there, the “Successful” songs needed to be found. To accomplish this, again, a separate custom script was made to scrape the billboard songs off the Wikipedia page: \url{https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_XXXX} where ‘XXXX’ was dynamically changed to reflect the year that was being scraped.
+
+\subsection{Cross Referencing with Spotify}
+Armed with lists of songs, artists, and billboard hits, the effort was then focused on interfacing with Spotify. In order to do this, an open source code-base called “spotipy” was employed to interface easier with the Spotify web API. The song search effort on Spotify was broken up into 3 segments and required unique scripts for each:
+\begin{itemize}
+\item Artist - with the artist name, a query was done on Spotify to find the artist ID. With that ID, all albums for the artist were found, and information about all songs on each album was collected and stored.
+\item Billboard Hits - because billboard status is the main target variable for this project, when cross referencing the Wikipedia list with Spotify, attention was paid to the similarity of the information. So, the song name from the internet was used as a query for spotify. 50 results were returned from that search. For each of the 50 songs, the year, song name, and artists of the song (which were obtained by scraping the hyperlink for the song title from Wikipedia) were checked against the Spotify song in question. A similarity measure was calculated for each of the 50 results, and the first, most similar result was chosen as the song on Spotify. This was done for all 6000+ billboard hits collected from Wikipedia
+\item All Songs - because the “not hits” portion of the data set is not as selective as the hits, the song names obtained from Wikipedia were used as a query on Spotify, and all 50 results were recorded to the database. This was done for all 84000+ song titles obtained from Wikipedia.
+\end{itemize}
+Several pieces of information were collected from Spotify for each query approach:
+\begin{itemize}
+\item Song Name
+\item Artist(s)
+\item Spotify ID  - Unique Identifier which can be used to get a wealth of other information)
+\item Release Date
+\item Popularity - Spotify Metric that mostly reflects total number of listens and how frequent those listens are
+\item Duration
+\end{itemize}
+The three lists are then combined and duplicates are removed, creating the list of roughly 1.9 million songs.
+
+\subsection{Extracting Song Features from Spotify}
+The final step in the collection process is collecting the audio features from Spotify for each of the songs. Because 50 ID’s can be called at a time, the audio features for the 1.9 million songs are collected in chunks of 50. The audio features given by spotify are: 'acousticness', 'danceability', 'energy',  'instrumentalness', 'key',  'liveness',  'loudness', 'mode', 'speechiness', 'tempo', 'time signature', and 'valence'.
+
+The final compiled and completed data set is shown in a pandas DataFrame Summary in Fig.~\ref{fig:dataframe}.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=6cm, height=7cm]{images/Song_Dataset_Dataframe.png}}
+\caption{Pandas Dataframe Description of Full Data Set}
+\label{fig:dataframe}
+\end{figure}
+
+\subsection{Collecting and Forming Spotify Analysis Data}
+Along with Features, the Spotify API also provides Analysis data. The Analysis data is extremely fine grained information about each song that the Features mentioned previously are actually derived from. For example, the acousticness above is just an average over the whole song, whereas the Analysis data has acousticness measurements for many discrete sections of the song. Along with that, it has information, such as pitch, timbre, bars, beats, measures, loudness, and many others, data which constitutes hundreds of kilobytes per song: storing this for even one thousand songs would result in almost a gigabyte of data. As a result of the large data size, only a small amount of that data could actually be used and stored. 
+
+For this project, it was selected that only pitch and timbre be pulled from the Analysis data. Pitch was chosen as it provides a deep understanding of the notes used in the song. Timbre provides added information to the pitch as timbre provides the tone of the sound. Timbre essentially conveys information about the musical instruments used. A C played on a flute will sound very different than a C played on a guitar and timbre is used to recognize these differences. However, even though only two features were selected from the Analysis data, there is still an overwhelming amount of data as for each song, pitch and timbre are 12 float element vectors each and a given song can have upwards of 1500 vectors for each feature. As a result, the pitch and timbre data too had to be reduced. To reduce the pitch and timbre data, Principal Component Analysis (PCA) was employed to reduce each element of pitch and timbre from dimensions of over 1500 to just one. The result yielded a 12 element vector for pitch and a 12 element vector for timbre \textit{only} for a given song.
+
+Due to data rate limiting from Spotify and the Analysis data only being available one song at a time, it was only possible to attain pitch and timbre info for songs from 2004 to 2020, resulting in about 12,000 songs, 1200 of which were hits. 
+
+\section{Feature Data Analysis}
+\subsection{Histogram Analysis}
+To analyze the strength of features, histograms were plotted for each feature by group: successes and not-successes.
+
+As shown in Fig.~\ref{fig:hist_pop}, Popularity seems to be a very strong features, as the histogram distributions between the successes and the not successes have different shapes. Danceability (Fig.~\ref{fig:hist_dance}), however, seem to be weak features as the histograms between the hits and not hits are almost identical, and might only serve to confuse the model if left in the feature set. 
+
+This analysis was conducted for all features in the data set.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=6cm]{images/feat_pop.png}}
+\caption{Popularity Histogram}
+\label{fig:hist_pop}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=6cm]{images/feat_dance.png}}
+\caption{Danceability Histogram}
+\label{fig:hist_dance}
+\end{figure}
+
+\subsection{Multivariate Regression P-value Analysis}
+Doing a multivariate regression on the features and then looking at the p-values gives a good understanding of the significance of each feature. Low p-values, close to 0, show that a feature is statistically significant. The p-value is calculated based on the coefficient’s statistical significance with respect to the null hypothesis coefficient = 0, or in layman's terms, the feature does not contribute to the model. As shown in Fig.~\ref{fig:regress} Danceability, Key, and Time signature, all have above 0 p-values and therefore can be considered insignificant to the model. Removing these variables will reduce noise and confusion within models, and furthermore, this result corroborates the visual inspection of the histograms. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=8.5cm]{images/regress_before.png}}
+\caption{Feature Multivariate Regression}
+\label{fig:regress}
+\end{figure}
+
+\section{Analysis Data Analysis}
+To analyze the Analysis data, a correlation matrix was employed. From this correlation, a normalized ``importance'' measure could be derived. The feature importance is shown in Fig.~\ref{fig:importance}. As shown in Fig.~\ref{fig:importance}, oddly enough, the most important feature from the Analysis data is loudness, followed closely by acousticness and the first element of the timbre vector, which from here on will be referred to as Timbre0.
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=7cm]{images/feature_importance.png}}
+\caption{Feature Importance Bar Graph. The larger the value, the greater its importance}
+\label{fig:importance}
+\end{figure}
+
+According to the feature importance bar graph, the loudness of a song seem to be a defining feature in its success. Investigating the distributions of loudness via box and whisker plots, partitioned by success versus not-success and by year in Fig.~\ref{fig:loud_vs_year} shows even more convincingly why loudness is a defining feature.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=7cm]{images/loudness_vs_year.png}}
+\caption{Box and Whisker Plots for Loudness vs Year}
+\label{fig:loud_vs_year}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=7cm]{images/timbre0_vs_year.png}}
+\caption{Box and Whisker Plots for Timbre0 vs Year}
+\label{fig:timbre_vs_year}
+\end{figure}
+
+For every year, the loudness of hit songs are on average above the not-successes. Moreover, the distributions between successes and not-successes are almost completely separable, at least when considering the 25$^{th}$ to 75$^{th}$ Quartile. This separability allows a classifier to accurately differentiate between successes and not-successes on this feature. 
+
+Investigating Timbre0 via similar means in Fig.~\ref{fig:timbre_vs_year} shows equally separable distributions. 
+
+\section{Machine Learning Attempts}
+The machine learning approach was broken up into two main threads: training a classifier using Feature data from the full data set of 1.9 million songs from 1946-2019, and training a model on Feature  and Analysis data, but only for the 12000 songs collected from 2004-2019. The approaches and results of each will be outlined in the following sections.
+
+\subsection{Full Data Set Feature Data}
+The initial steps of machine learning focused on predicting the Success of a song based on the binary classification is it a billboard hit or not: billboard hits are considered a success, while not billboard songs are not successes. However, using this as the target variable complicates training due to a severely imbalanced data set. There are only roughly 5800 billboard hits in the data set of over 1.9 million, resulting in a success to not-success ratio of 310:1. 0.3\% of the data set is a success. This presents issues as the best way for a neural network to improve overall losses is to essentially assume the song is not a hit every time, yielding 99.7\% accuracy on the set as a whole and 100\% success on detecting not hits, but 0\% on detecting hits.
+
+To remedy this issue, the not hits are randomly reduced to 25\% of their full size, yielding a full data set size of 472,000 and driving the success rate of the data set to 1.23\%, making training more manageable.
+
+A well-tuned Artificial Neural Network (ANN) and Decision Tree were trained on the reduced data set. The results displayed that the ANN does a surprisingly good job of correctly classifying hits in both the test set and the training set: 86\% and 85\% respectively. The ANN, however, does not perform well classifying not-successes, with accuracies of only 88\% and 89\%. While 88\% and 89\% may seem very high, given the shear size of the not-success pool, misclassifying over 10\% of the not-hits can very quickly wash out the overall effectiveness of the classifier, which will be shown later in a comparison of the algorithms. The Decision Tree, contrastingly, has a rough time achieving high hit classification. The classification accuracy for hits for test and train are roughly 21\% and 30\% respectively. Increasing the complexity of the tree only serves to increase the in-sample classification, while not helping the out-sample. The tree does keep consistently high accuracy in classifying not hits though.
+
+To compare the trained models further, a script was written to generate a data set of 10000 random songs from the full set of 1.9 million, irrespective of their success classification. Running the script several times shows that no matter the random data set, the accuracies of both models stay relatively constant, emphasizing that the 75\% reduced data set is still decently representative of the full 1.9 million song data set. More interesting conclusions appear when looking at the specific results of one of these random data sets as shown in Fig.~\ref{fig:ML_COMPARE}.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=8.5cm]{images/binary_classifier_comparison.png}}
+\caption{ANN and Decision Tree Comparison}
+\label{fig:ML_COMPARE}
+\end{figure}
+
+From the data set of 10000 randomly drawn, only 25 hits are present, emphasizing that even a random sample of 10,000 is representative of the full data set, as roughly 30 hits would expected. Despite the small amount of hits, the ANN correctly classifies 22 out of the 25. The decision tree, by contrast, only correctly identifies 8 of the 25. However, when looking at the Misclassified Hits, which is the number of not-hits classified as hits (false positive), the ANN has significantly more misclassified hits: 1241 for the ANN and only 30 for the decision tree. Calculating the percentage of classified hits that are actually hits yields the “Hit Success Rate”, which for the ANN is an abysmal 1.74\%, but for the decision tree is 21.05\%. For comparison, randomly choosing hits would yield, at most, a Hit Success Rate of 0.3\%. So the ANN, only marginally raises the chances of correctly classifying a hit, while the decision tree significantly increases those chances.
+
+Both models have a use though. Take the use case of a production studio choosing song previews to sign for an album. If the production studio does not see many new artists to sign, they would want the ANN, as it has a high chance of finding all the possible hits they screen, and because they do not screen a ton of songs, they will not sink too much money in non-hits. If the production company, by contrast, screens a ton of songs, they would want the decision tree as it will minimize their losses and if they miss a few hits it will not make a difference because they will be screening more possible hits.
+
+\subsection{Small Data Set Feature and Analysis Data}
+For this portion of the machine learning attempts, only the small data set of 12,000 songs from 2004-2019 were employed for training. The features used, however, were a combination of Spotify Feature and Analysis data, so similar features as the last section with pitch and timbre now added. With roughly 1200 of the 12,000 songs now classified as hits, the data set is far more balanced at 10\% than the larger data set at 0.3\%.
+
+Four algorithms were applied to this data set: Decision Tree, Logistic Regression, Random Forest, and XGBoost which is essentially a Random Forest with gradient boosting. The models were trained on 70\% of the data set and tested on the remaining 30\%. For validation though, the models were applied to completely unseen data from 2020. The 2020 data set had only 1234 songs, 38 of which were hits. This data set providing an interesting validation attempt as the data was completely unseen and the hit ratio was 3.08\% as opposed to the training and test data sets which were around 10\%.
+
+The fine-detail results of the Decision Tree, Logistic Regression, Random Forest, and XGBoost on the 2020 validation set were collected and the most important data from these breakdowns are compiled together and compared in Fig.~\ref{fig:2020_overall}. 
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=9.5cm]{images/overall_comparison.png}}
+\caption{Overall Algorithm Results Comparison for 2020 Validation Set}
+\label{fig:2020_overall}
+\end{figure}
+
+As shown in Fig.~\ref{fig:2020_overall}, the XGBoost performs the best on the most important metric, Hit Success Rate. As mentioned above, Hit Success Rate is the quintessential parameter in this study. Moving the hit success rate as far from random guessing, which for this data set is 3.08\%, is the main goal of the classifier. The XGBoost yields a 19.44\% Hit Success Rate, significantly better than the other classifiers. Interestingly, these results are consistent with the architectures used. A random forest is just a series of randomly investigated decision trees, and XGBoost is merely a random forest with gradient boosting. In that vein, it makes sense that the random forest has better accuracy than just the decision tree, and the XGBoost performs better than the random forest.
+
+Another interesting note is that the best classifier, XGBoost, was not necessarily the best in both Hit Accuracy and Not-Hit Accuracy. In fact, logistic regression was the best in Hit Accuracy and just the plain decision tree was best in Not-Hit Accuracy. XGBoost was, however, the best in precision, recall, and accuracy, emphasizing the importance of classifying both classes accurately, not just one or the other. 
+
+One very important note about this attempt is that the features used \textit{did not include popularity}. The Spotify-derived metric Popularity was purposely left out in this attempt as opposed to the previous section to try to get a classifier that does not rely on whether the song is already popular. While including popularity may seem like a circular classifier that essentially classifies a song as a hit if it is already popular, this is not the full picture. Popularity is after all a derived feature and does not indicate directly if a song will be a billboard hit or not. As shown in Fig.~\ref{fig:hist_pop}, not all billboard hits (successes) are popular according to Spotify, and not all popular songs are billboard hits. However, popularity was avoided for these classifiers in an attempt to remove any circular dependencies, and to make a classifier that can look at a raw, untested song and determine its success. 
+
+\section{Conclusions}
+One of the largest song data sets (aside from Spotify itself) was compiled for this paper. Employing a data set of this size brought up an interesting observation: sometimes too much data can present an issue. The harmful effects of excess data is a very well known issue, but it was especially displayed in this paper. In order to remedy this issue, the data set always had to be cut down. However, due to the shear size, the statistics of the smaller data sets were always consistent with the larger population. 
+
+The results of this paper were very promising, but there is a long way to go to get a truly good song hit classifier. In the first machine learning section, using just base features and popularity as an input, a decision tree classifier was able to attain a 21\% Hit Success Rate, superseding the random guessing chance of 0.3\% by almost two orders of magnitude. In the second section, a XGBoost classifier was able to attain 19.44\% Hit Success Rate, elevating far above the random guessing rate of 3.08\% for that data set. More impressively, the features employed for XGBoost did not include popularity. Thereby, this classifier could identify with a 1 in 5 chance an actual billboard hit without knowing its current success on Spotify.
+
+Despite, the promising results, there is still much work to be done to design a classifier that digs to the core of why successful songs are actually successful. This work did not by any means identify the smoking gun of why songs are popular. Given enough work, it is believed that a classifier that achieves 50\% Hit Success Rate at least could be obtained.
+
+\section{Future Work}
+As mentioned above in Conclusions, the smoking gun of what exactly makes songs popular was not identified in this paper, but the future seems promising for a classifier that does. To extend this work and achieve deeper results, the fine details of the Spotify Analysis data must be employed. As mentioned in the Data Collection section, the pitch and timbre vectors come in 1500 plus by 12 element arrays. This is far too much data to store on one computer for 1.9 million songs. However, the data provides fine-grained detail about both the notes and instruments used in the song, and moreover, does not have to be stored. The data can be called from Spotify, used to train a model and then discarded. The shear amount of data still presents an issue when called though, as Analysis data can only be called one song at a time, a process which is rate limited by about 0.3 seconds. Therefore, obtaining data a thousand songs would take 5 minutes. Obtaining data for 10,000 songs would be 50 minutes, and the time only increases. Training, testing, validation and model tuning with this data would take a very long time.
+
+Given the time though, the full pitch and timbre breakdown for each song could provide a wealth of information. The hypothesis with this data is that popular songs have similar note patterns or sound combinations that resonate with a large group of people and are not found in less popular songs. To turn this hypothesis into a formal machine learning problem, an LSTM network or Windowed Multilayer Perceptron would be good to identify the time series trends available in the pitch and timbre data. 
+
+LSTMs allow memory to be covertly passed between consecutive samples which thereby allows it to pick up on time series patterns. Two LSTM networks would be trained to predict the future pitch and timbre values based on previous: one would be trained to be highly accurate for hits, and the other highly accurate with not-hits. Then, to classify a new song, both networks would be applied to the song and the network that provides the smallest overall error would provide the classification. So if the hit-trained network provided the smallest error, the song would be considered a hit and vice versa. 
+
+Windowed Multilayer Perceptrons (MLP) are similar to LSTM networks in the sense that they can observe time series patterns, but they do not actively pass memory. The size of the window determines the maximum period features it can recognize. One windowed MLP would be trained on all data, hit and not-hit, and would be trained to recognize similar patterns between songs. For example, for a hit song, every window of the pitch and timbre data for the song would be trained to output 1. For not-hits, the target for every window would be 0. Thereby, the more consistent a given pattern is with not-hits, the lower the output will be. The more consistent a given pattern is with hits, the higher an output would be. To classify, the windowed MLP would be applied to a new song, and the average output for all the windows would be calculated. If the average is above a certain bias, it would be considered a hit. If the average is below the bias, the song would be considered not a hit.
+
+Along with song data, Lyrical data would also be interesting to investigate. For lyrical data, either a topic modeller conjoined with a neural network, or a convolutional neural network would be interesting to apply to see if popular songs talk about certain things more frequently than not popular songs. Moreover, maybe lyrics do not impact success, and it is only the sounds that impact success. 
+
+\section*{References}
+
+TO BE DONE BEFORE FINAL PROJECT SUBMISSION \cite{b1}.
+
+\begin{thebibliography}{00}
+\bibitem{b1} TO BE DONE BEFORE FINAL PROJECT SUBMISSION
+\end{thebibliography}
+
+\end{document}
+
+
